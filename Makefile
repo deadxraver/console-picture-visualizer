@@ -7,6 +7,7 @@ CC=gcc
 
 all: build test
 	@echo 'built & tested app successfully'
+	@echo 'executable can be found in $(BUILD)/$(TARGET)'
 
 build: $(SRC)
 	test -e $(BUILD) || mkdir -p $(BUILD)

@@ -1,0 +1,22 @@
+name: "ci"
+run-name: "build & test"
+
+on: [push]
+
+env:
+  GH_TOKEN: ${{github.token}}
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Install dependencies"
+        run: |
+          apt update
+          apt install make gcc -y
+      - name: "Build"
+        run: make build
+      - name: "Test"
+        run: make test
