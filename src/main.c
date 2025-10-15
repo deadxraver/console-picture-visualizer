@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     return -1;
   }
   struct list* pixels;
-  enum bmp_open_result res = open_bmp(argv[1], &pixels);
+  enum bmp_open_result res = open_bmp(file, &pixels);
   if (res) {
     bmp_print_err(res);
     return res;
