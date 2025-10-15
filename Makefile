@@ -28,10 +28,10 @@ build-test: $(TEST_SRC)
 debug: $(SRC)
 	mkdir -p $(DEBUG_BUILD)
 	$(CC) $(DEBUG_FLAGS) -o $(DEBUG_BUILD)/$(DEBUG_TARGET) $^/*.c $^/**/*.c
-	$(GDB) $(DEBUG_BUILD)/$(DEBUG_TARGET)
+	$(GDB) --args $(DEBUG_BUILD)/$(DEBUG_TARGET) -50 $(HOME)/soup.bmp
 
 test: $(SRC) build build-test
 	$(TEST_BUILD)/$(TEST_TARGET)
 
 clean:
-	rm -rf $(BUILD) $(TEST_BUILD)
+	rm -rf $(BUILD) $(TEST_BUILD) $(DEBUG_BUILD)
