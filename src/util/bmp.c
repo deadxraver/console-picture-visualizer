@@ -66,7 +66,7 @@ enum bmp_open_result open_bmp(char* path, struct list** list_pp) {
   list_p->has_inner = true;
   for (size_t i = 0; i < list_p->sz; ++i) {
     ((struct list**)(list_p->data))[i] = list_init(header_p->biWidth, sizeof(struct pixel));
-    if (read(fd, ((struct list**)(list_p->data))[i], sizeof(struct pixel) * header_p->biWidth) != sizeof(struct pixel) * header_p->biWidth
+    if (read(fd, ((struct list**)(list_p->data))[i]->data, sizeof(struct pixel) * header_p->biWidth) != sizeof(struct pixel) * header_p->biWidth
         || read(fd, padding_skipper, padding) != padding) {
       free(header_p);
       header_p = NULL;
