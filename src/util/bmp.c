@@ -11,6 +11,8 @@ void bmp_print_err(enum bmp_open_result code) {
     return ;
   else if (code == BMP_FILE_ERR)
     fprintf(stderr, "Failed to open file\n");
+  else if (code == BMP_HEADER_INV)
+    fprintf(stderr, "Header invalid\n");
   else if (code == BMP_READ_ERR)
     fprintf(stderr, "Error while reading from file\n");
   else if (code == BMP_WR_SIGN)
@@ -42,7 +44,7 @@ enum bmp_open_result open_bmp(char* path, struct list** list_pp) {
     fd = -1;
     free(header_p);
     header_p = NULL;
-    return BMP_READ_ERR;
+    return BMP_HEADER_INV;
   }
   if (header_p->bfType != BMP_SIGN) {
     free(header_p);

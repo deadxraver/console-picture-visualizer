@@ -10,6 +10,7 @@
 enum bmp_open_result {
   BMP_OK = 0,             // OK
   BMP_FILE_ERR,           // cannot open file
+  BMP_HEADER_INV,         // invalid header
   BMP_READ_ERR,           // cannot read from file
   BMP_WR_SIGN,            // file has non-bmp signature
   BMP_DEPTH_UNSPTD,       // pixel depth unsupported
