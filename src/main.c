@@ -24,5 +24,6 @@ int main(int argc, char* argv[]) {
     printf("\n");
   }
   list_free(pixels);
+  pixels = NULL;
   return 0;
 }
