@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   struct list* pixels;
   enum bmp_open_result res = open_bmp(argv[1], &pixels);
   if (res) {
-    fprintf(stderr, "Error: %d\n", res);
+    bmp_print_err(res);
     return res;
   }
   for (size_t i = 0; i < pixels->sz; ++i) {

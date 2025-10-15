@@ -6,6 +6,25 @@
 
 uint8_t padding_skipper[3];
 
+void bmp_print_err(enum bmp_open_result code) {
+  if (code == BMP_OK)
+    return ;
+  else if (code == BMP_FILE_ERR)
+    fprintf(stderr, "Failed to open file\n");
+  else if (code == BMP_READ_ERR)
+    fprintf(stderr, "Error while reading from file\n");
+  else if (code == BMP_WR_SIGN)
+    fprintf(stderr, "File's signature isn't BMP\n");
+  else if (code == BMP_DEPTH_UNSPTD)
+    fprintf(stderr, "Depth is not supported, only 24 bits available\n");
+  else if (code == BMP_MALLOC_ERR)
+    fprintf(stderr, "Failed to allocate memory\n");
+  else if (code == BMP_NULL_PTR)
+    fprintf(stderr, "One of the peremeters passed is NULL\n");
+  else
+    fprintf(stderr, "Unknown error\n");
+}
+
 enum bmp_open_result open_bmp(char* path, struct list** list_pp) {
   if (path == NULL || list_pp == NULL)
     return BMP_NULL_PTR;

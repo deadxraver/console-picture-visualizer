@@ -17,6 +17,8 @@ enum bmp_open_result {
   BMP_NULL_PTR,           // one of args is NULL
 };
 
+void bmp_print_err(enum bmp_open_result);
+
 enum bmp_open_result open_bmp(char* path, struct list** list_pp);
 
 struct __attribute__((packed)) bmp_header {
