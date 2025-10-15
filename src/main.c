@@ -21,6 +21,7 @@ int main(int argc, char* argv[]) {
       struct pixel pixel = ((struct pixel*)(row->data))[j];
       MACRO_PRINT_PIXEL(pixel.r, pixel.g, pixel.b);
     }
+    printf("\n");
   }
   list_free(pixels);
   return 0;
