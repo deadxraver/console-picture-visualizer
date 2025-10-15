@@ -12,6 +12,7 @@ DEBUG_TARGET=dbg
 DEBUG_FLAGS=-g3 -o0
 CC=gcc
 GDB=gdb
+GDB_FLAGS=-ex "layout regs" -ex "break main" -ex "start"
 
 all: build test
 	@echo 'built & tested app successfully'
@@ -28,7 +29,7 @@ build-test: $(TEST_SRC)
 debug: $(SRC)
 	mkdir -p $(DEBUG_BUILD)
 	$(CC) $(DEBUG_FLAGS) -o $(DEBUG_BUILD)/$(DEBUG_TARGET) $^/*.c $^/**/*.c
-	$(GDB) --args $(DEBUG_BUILD)/$(DEBUG_TARGET) -50 $(HOME)/soup.bmp
+	$(GDB) $(GDB_FLAGS) --args $(DEBUG_BUILD)/$(DEBUG_TARGET) -50 $(HOME)/soup.bmp
 
 test: $(SRC) build build-test
 	$(TEST_BUILD)/$(TEST_TARGET)
