@@ -1,5 +1,6 @@
 #include "list.h"
 #include <malloc.h>
+#include <string.h>
 
 /*
   * Initialize list with `sz` elements of size `elem_sz`

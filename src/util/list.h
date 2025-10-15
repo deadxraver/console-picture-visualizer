@@ -2,6 +2,9 @@
 
 #define UTIL_LIST_H
 
+#include <stdbool.h>
+#include <stddef.h>
+
 struct list {
   size_t sz;
   size_t elem_sz;
