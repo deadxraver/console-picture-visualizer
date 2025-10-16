@@ -43,5 +43,6 @@ void list_free(struct list* list_p) {
     }
     list_p->has_inner = false;
   }
+  free(list_p->data);
   free(list_p);
 }
