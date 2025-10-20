@@ -12,7 +12,7 @@ Currently only 24-bit BMP format is supported.
 First of all, you need to install following dependencies:
 
 ```
-make gcc
+make gcc [gdb]
 ```
 
 After that simply run `make` which will build & test the app.
