@@ -28,6 +28,16 @@ struct __attribute__((packed)) png_chunk {
   } type;
 };
 
+struct unknown_chunk {
+  uint32_t length;
+  union {
+    uint32_t num;
+    char str[5]; // space for null-term for easier print
+  } type;
+  void* data;
+  uint32_t crc;
+};
+
 struct __attribute__((packed)) png_header {
   uint32_t width;
   uint32_t height;

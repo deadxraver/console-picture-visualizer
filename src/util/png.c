@@ -10,7 +10,7 @@
 
 static const uint8_t png_sign[] = {137, 80, 78, 71, 13, 10, 26, 10};
 
-static const union { uint32_t type; char type_str[4]; }
+static const union { uint32_t type; char type_str[5]; }
   hdr_c = { .type_str = "IHDR" },
   plte_c = { .type_str = "PLTE" },
   data_c = { .type_str = "IDAT" },
@@ -47,6 +47,50 @@ void png_print_err(enum png_open_result png_open_result) {
       fprintf(stderr, "Unknown error: %d\n", (int)png_open_result);
     }
   }
+}
+
+enum png_open_result read_chunk(int fd, struct unknown_chunk* chunk) {
+  uint32_t len;
+  chunk->data = NULL;
+  enum png_open_result res = PNG_OK;
+
+  if (read(fd, &len, sizeof(len)) < sizeof(len)) {
+    res = PNG_READ_ERR;
+    goto end;
+  }
+
+  len = ntohl(len);
+  chunk->length = len;
+
+  if (read(fd, &chunk->type.num, sizeof(uint32_t)) < sizeof(uint32_t)) {
+    res = PNG_READ_ERR;
+    goto end;
+  }
+
+  chunk->type.str[4] = 0;
+  chunk->data = malloc(len);
+
+  if (chunk->data == NULL) {
+    res = PNG_MALLOC_ERR;
+    goto end;
+  }
+
+  if (read(fd, chunk->data, len) < len) {
+    res = PNG_READ_ERR;
+    goto end;
+  }
+
+  if (read(fd, &chunk->crc, sizeof(uint32_t)) < sizeof(uint32_t)) {
+    res = PNG_READ_ERR;
+    goto end;
+  }
+
+end:
+  if (res != PNG_OK && chunk->data != NULL) {
+    free(chunk->data);
+    chunk->data = NULL;
+  }
+  return res;
 }
 
 enum png_open_result open_png(char* path, struct list** list_pp) {
@@ -119,8 +163,23 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
       goto end;
     }
   }
+
+  struct unknown_chunk cur_chunk;
+  while(1) {
+    res = read_chunk(fd, &cur_chunk);
+    if (res != PNG_OK)
+      goto end;
+    printf("%s\n", cur_chunk.type.str);
+    // TODO: some work
+    if (cur_chunk.data) {
+      free(cur_chunk.data);
+      cur_chunk.data = NULL;
+    }
+    if (cur_chunk.type.num == end_c.type)
+      break;
+  }
+
   res = PNG_NO_IMPL;
-  // TODO:
 end:
   if (fd >= 0) {
     close(fd);
