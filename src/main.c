@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "main.h"
 #include "util/bmp.h"
+#include "util/png.h"
 #include "util/list.h"
 #include "util/pixel.h"
 #include "util/compressor.h"
@@ -28,9 +29,14 @@ int main(int argc, char* argv[]) {
     return -1;
   }
   struct list* pixels;
-  enum bmp_open_result res = open_bmp(file, &pixels);
-  if (res) {
+  int res = open_bmp(file, &pixels);
+  if (res != BMP_OK && res != BMP_WR_SIGN) {
     bmp_print_err(res);
+    return res;
+  }
+  res = open_png(file, &pixels);
+  if (res != PNG_OK) {
+    png_print_err(res);
     return res;
   }
   compress(&pixels, width);
