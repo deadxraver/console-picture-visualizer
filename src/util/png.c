@@ -1,5 +1,7 @@
 #include "png.h"
 
+#include "pixel.h"
+
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -51,6 +53,7 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
   enum png_open_result res = PNG_OK;
   struct png_header header;
   struct png_chunk chunk;
+  struct list* list = NULL;
   uint32_t crc;
   char type[5] = {0};
   uint8_t sign[8];
@@ -101,12 +104,31 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
          (int)header.bit_depth, (int)header.color_type,
          (int)header.compression_type, (int)header.filtration_type,
          (int)header.interlace);
+  *list_pp = list_init(height, sizeof(struct list*));
+  list = *list_pp;
+  if (list == NULL) {
+    res = PNG_MALLOC_ERR;
+    goto end;
+  }
+  list->has_inner = true;
+  struct list** rows = (struct list**)list->data;
+  for (size_t i = 0; i < list->sz; ++i) {
+    rows[i] = list_init(width, sizeof(struct pixel));
+    if (rows[i] == NULL) {
+      res = PNG_MALLOC_ERR;
+      goto end;
+    }
+  }
   res = PNG_NO_IMPL;
   // TODO:
 end:
   if (fd >= 0) {
     close(fd);
     fd = -1;
+  }
+  if (res != PNG_OK && list != NULL) {
+    list_free(list);
+    list = NULL;
   }
   return res;
 }
