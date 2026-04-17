@@ -9,7 +9,7 @@ enum png_open_result {
   PNG_OK = 0,             // OK
   PNG_FILE_ERR,           // cannot open file
   PNG_READ_ERR,           // cannot read from file
-  PNG_WR_SIGN,            // file has non-bmp signature
+  PNG_WR_SIGN,            // file has non-png signature
   PNG_HDR_ERR,            // smth wrong with header
   PNG_MALLOC_ERR,         // failed to malloc
   PNG_NULL_PTR,           // one of args is NULL
