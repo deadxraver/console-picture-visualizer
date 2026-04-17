@@ -44,8 +44,12 @@ void png_print_err(enum png_open_result png_open_result) {
       fprintf(stderr, "PNG is not implemented yet\n");
       break;
     }
-    case PNG_CRIT_CHUNK_UNSUP: {
+    case PNG_CRIT_CHUNK_UNSPRTD: {
       fprintf(stderr, "Critical chunk met which is currently not supported\n");
+      break;
+    }
+    case PNG_MTHD_UNSPRTD: {
+      fprintf(stderr, "One of methods is unsupported or the color mode is grayscale\n");
       break;
     }
     default: {
@@ -148,8 +152,23 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
 
   uint32_t width = ntohl(header.width), height = ntohl(header.height);
 
-  if (header.compression_type != 0) {
+  if (
+    header.compression_type != 0
+    || header.filtration_type != 0
+    || (header.bit_depth != 1 && header.bit_depth != 2
+        && header.bit_depth != 4 && header.bit_depth != 8
+        && header.bit_depth != 16)
+    || (header.color_type < 0 || header.color_type > 6
+        || header.color_type == 1 || header.color_type == 5)
+    || (header.interlace < 0 || header.interlace > 1)
+  ) {
     res = PNG_HDR_ERR;
+    goto end;
+  }
+
+  if (header.interlace == 1
+    || header.color_type == 1 || header.color_type == 4) {
+    res = PNG_MTHD_UNSPRTD;
     goto end;
   }
 
