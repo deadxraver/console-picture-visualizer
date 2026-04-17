@@ -148,6 +148,11 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
 
   uint32_t width = ntohl(header.width), height = ntohl(header.height);
 
+  if (header.compression_type != 0) {
+    res = PNG_HDR_ERR;
+    goto end;
+  }
+
   printf("%s: %ux%u\n"
          "depth: %d, color_type: %d, "
          "compression_type: %d, filtration_type: %d,\n"
@@ -179,9 +184,10 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
     res = read_chunk(fd, &chunk);
     if (res != PNG_OK)
       goto end;
-    printf("%s", chunk.type.str);
+    printf("%s: ", chunk.type.str);
+    printf("sz=%u,crc=%u", chunk.length, chunk.crc);
     if (is_upper(chunk.type.str[0])) {
-      printf(": critical");
+      printf(",critical");
       // we'll skip non critical chunks
     }
     printf("\n");
