@@ -45,7 +45,7 @@ void png_print_err(enum png_open_result png_open_result) {
       break;
     }
     case PNG_CRIT_CHUNK_UNSUP: {
-      fprintf(stderr, "Criticul chunk met which is currently not supported\n");
+      fprintf(stderr, "Critical chunk met which is currently not supported\n");
       break;
     }
     default: {
