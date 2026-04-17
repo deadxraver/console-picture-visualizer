@@ -20,15 +20,7 @@ enum png_open_result open_png(char* path, struct list** list_pp);
 
 void png_print_err(enum png_open_result);
 
-struct __attribute__((packed)) png_chunk {
-  uint32_t length;
-  union {
-    uint32_t num;
-    char str[4];
-  } type;
-};
-
-struct unknown_chunk {
+struct png_chunk {
   uint32_t length;
   union {
     uint32_t num;

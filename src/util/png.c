@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 
 static const uint8_t png_sign[] = {137, 80, 78, 71, 13, 10, 26, 10};
 
@@ -49,7 +50,7 @@ void png_print_err(enum png_open_result png_open_result) {
   }
 }
 
-enum png_open_result read_chunk(int fd, struct unknown_chunk* chunk) {
+enum png_open_result read_chunk(int fd, struct png_chunk* chunk) {
   uint32_t len;
   chunk->data = NULL;
   enum png_open_result res = PNG_OK;
@@ -98,48 +99,49 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
   struct png_header header;
   struct png_chunk chunk;
   struct list* list = NULL;
-  uint32_t crc;
-  char type[5] = {0};
   uint8_t sign[8];
   int fd = -1;
+  chunk.data = NULL;
+
   if (path == NULL || list_pp == NULL) {
     res = PNG_NULL_PTR;
     goto end;
   }
+
   fd = open(path, O_RDONLY);
   if (fd < 0) {
     res = PNG_FILE_ERR;
     goto end;
   }
+
   if (read(fd, sign, sizeof(sign)) < sizeof(sign)) {
     res = PNG_READ_ERR;
     goto end;
   }
+
   for (size_t i = 0; i < 8; ++i) {
     if (sign[i] != png_sign[i]) {
       res = PNG_WR_SIGN;
       goto end;
     }
   }
-  if (read(fd, &chunk, sizeof(chunk)) < sizeof(chunk)) {
-    res = PNG_READ_ERR;
+
+  res = read_chunk(fd, &chunk);
+  if (res != PNG_OK)
     goto end;
-  }
-  uint32_t length = ntohl(chunk.length);
+  uint32_t length = chunk.length;
   if (length != sizeof(struct png_header)
     || chunk.type.num != hdr_c.type) {
     res = PNG_HDR_ERR;
     goto end;
   }
-  if (read(fd, &header, length) < length) {
-    res = PNG_READ_ERR;
-    goto end;
-  }
-  if (read(fd, &crc, sizeof(crc)) < sizeof(crc)) {
-    res = PNG_READ_ERR;
-    goto end;
-  }
+
+  memcpy(&header, chunk.data, sizeof(header));
+  free(chunk.data);
+  chunk.data = NULL;
+
   uint32_t width = ntohl(header.width), height = ntohl(header.height);
+
   printf("%s: %ux%u\n"
          "depth: %d, color_type: %d, "
          "compression_type: %d, filtration_type: %d,\n"
@@ -148,12 +150,15 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
          (int)header.bit_depth, (int)header.color_type,
          (int)header.compression_type, (int)header.filtration_type,
          (int)header.interlace);
+
   *list_pp = list_init(height, sizeof(struct list*));
   list = *list_pp;
+
   if (list == NULL) {
     res = PNG_MALLOC_ERR;
     goto end;
   }
+
   list->has_inner = true;
   struct list** rows = (struct list**)list->data;
   for (size_t i = 0; i < list->sz; ++i) {
@@ -164,18 +169,17 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
     }
   }
 
-  struct unknown_chunk cur_chunk;
   while(1) {
-    res = read_chunk(fd, &cur_chunk);
+    res = read_chunk(fd, &chunk);
     if (res != PNG_OK)
       goto end;
-    printf("%s\n", cur_chunk.type.str);
-    // TODO: some work
-    if (cur_chunk.data) {
-      free(cur_chunk.data);
-      cur_chunk.data = NULL;
+    printf("%s\n", chunk.type.str);
+    // TODO: the work with chunks
+    if (chunk.data) {
+      free(chunk.data);
+      chunk.data = NULL;
     }
-    if (cur_chunk.type.num == end_c.type)
+    if (chunk.type.num == end_c.type)
       break;
   }
 
@@ -184,6 +188,10 @@ end:
   if (fd >= 0) {
     close(fd);
     fd = -1;
+  }
+  if (chunk.data != NULL) {
+    free(chunk.data);
+    chunk.data = NULL;
   }
   if (res != PNG_OK && list != NULL) {
     list_free(list);
