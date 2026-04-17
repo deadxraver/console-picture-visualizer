@@ -44,13 +44,19 @@ void png_print_err(enum png_open_result png_open_result) {
       fprintf(stderr, "PNG is not implemented yet\n");
       break;
     }
+    case PNG_CRIT_CHUNK_UNSUP: {
+      fprintf(stderr, "Criticul chunk met which is currently not supported\n");
+      break;
+    }
     default: {
       fprintf(stderr, "Unknown error: %d\n", (int)png_open_result);
     }
   }
 }
 
-enum png_open_result read_chunk(int fd, struct png_chunk* chunk) {
+static inline bool is_upper(char c) { return c >= 'A' && c <= 'Z'; }
+
+static enum png_open_result read_chunk(int fd, struct png_chunk* chunk) {
   uint32_t len;
   chunk->data = NULL;
   enum png_open_result res = PNG_OK;
@@ -173,8 +179,12 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
     res = read_chunk(fd, &chunk);
     if (res != PNG_OK)
       goto end;
-    printf("%s\n", chunk.type.str);
-    // TODO: the work with chunks
+    printf("%s", chunk.type.str);
+    if (is_upper(chunk.type.str[0])) {
+      printf(": critical");
+      // we'll skip non critical chunks
+    }
+    printf("\n");
     if (chunk.data) {
       free(chunk.data);
       chunk.data = NULL;

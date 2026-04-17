@@ -14,6 +14,7 @@ enum png_open_result {
   PNG_MALLOC_ERR,         // failed to malloc
   PNG_NULL_PTR,           // one of args is NULL
   PNG_NO_IMPL,            // format not supported yet
+  PNG_CRIT_CHUNK_UNSUP,   // met critical chunk not supported by this app
 };
 
 enum png_open_result open_png(char* path, struct list** list_pp);
