@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-static const uint8_t png_sign[] = {137, 80, 78, 71, 13, 10, 26, 10};
+static const uint8_t PNG_SIGN[] = {137, 80, 78, 71, 13, 10, 26, 10};
 
 static const union { uint32_t type; char type_str[5]; }
   hdr_c = { .type_str = "IHDR" },
@@ -126,7 +126,7 @@ enum png_open_result open_png(char* path, struct list** list_pp) {
   }
 
   for (size_t i = 0; i < 8; ++i) {
-    if (sign[i] != png_sign[i]) {
+    if (sign[i] != PNG_SIGN[i]) {
       res = PNG_WR_SIGN;
       goto end;
     }
