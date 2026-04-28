@@ -30,7 +30,9 @@ int main(int argc, char* argv[]) {
   }
   struct list* pixels;
   int res = open_bmp(file, &pixels);
-  if (res != BMP_OK && res != BMP_WR_SIGN) {
+  if (res == BMP_OK)
+    goto ok;
+  if (res != BMP_WR_SIGN) {
     bmp_print_err(res);
     return res;
   }
@@ -39,6 +41,7 @@ int main(int argc, char* argv[]) {
     png_print_err(res);
     return res;
   }
+ok:
   compress(&pixels, width);
   for (size_t i = pixels->sz; i > 0; --i) {
     struct list* row = ((struct list**)(pixels->data))[i-1];
